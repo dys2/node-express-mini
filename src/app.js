@@ -14,6 +14,37 @@ const readWords = () => {
   return contents.split('\n');
 };
 
-// TODO: your code to handle requests
+const words = readWords();
+const random = Math.floor(Math.random() * 235836);
+const word = words[random];
+let array = word.split('').map(v => '-');
+const guesses = [];
+
+server.post('/guess', (req, res) => {
+  const letter = req.body.letter;
+  if (!letter) {
+    res.status(STATUS_USER_ERROR);
+    res.json({ error: "must provide letter" });
+    return
+  }
+  if (guesses.includes(letter)) {
+    res.status(STATUS_USER_ERROR);
+    res.json({ error: "this letter has already been guessed" });
+    return
+  } else {
+    guesses.push(letter);
+  }
+  word.split('').forEach((l, i) => {
+    if (l === letter) array[i] = letter;
+  });
+  if (array.join('') === word) res.json({"Congrats your guessed ": word})    
+  res.json({ "Keep trying": array.join('') });
+});
+
+server.get('/guess', (req, res) => {
+    res.json({ "wordSoFar": array.join(''), "guesses": guesses});
+});
+
+
 
 server.listen(3000);
